@@ -185,6 +185,7 @@ namespace Spine {
 		Sequence
 	}
 
+	// 所有时间轴的基类
 	/// <summary>
 	/// The base class for all timelines.</summary>
 	public abstract class Timeline {
@@ -198,26 +199,31 @@ namespace Spine {
 			frames = new float[frameCount * FrameEntries];
 		}
 
+		// 该时间轴的类型及其所影响的skeleton属性的唯一编码
 		/// <summary>Uniquely encodes both the type of this timeline and the skeleton properties that it affects.</summary>
 		public string[] PropertyIds {
 			get { return propertyIds; }
 		}
 
+		// 帧数据. 包含每帧的时长和每帧内需要的数据.
 		/// <summary>The time in seconds and any other values for each frame.</summary>
 		public float[] Frames {
 			get { return frames; }
 		}
 
+		// 每帧包含的条目数. 也就是每帧包含的数据在Frames数组中占用的长度.
 		/// <summary>The number of entries stored per frame.</summary>
 		public virtual int FrameEntries {
 			get { return 1; }
 		}
 
+		// Timeline的帧数.
 		/// <summary>The number of frames for this timeline.</summary>
 		public int FrameCount {
 			get { return frames.Length / FrameEntries; }
 		}
 
+		// Timeline时长. 按照这个计算方式, frames[frameIndex]中存储的应该是每一帧的结束时间（相对第0帧的时间）
 		public float Duration {
 			get {
 				return frames[frames.Length - FrameEntries];
@@ -279,6 +285,7 @@ namespace Spine {
 		int SlotIndex { get; }
 	}
 
+	// 时间轴基类，时间轴使用分段、线性、贝塞尔曲线在帧之间插值
 	/// <summary>The base class for timelines that interpolate between frame values using stepped, linear, or a Bezier curve.</summary>
 	public abstract class CurveTimeline : Timeline {
 		public const int LINEAR = 0, STEPPED = 1, BEZIER = 2, BEZIER_SIZE = 18;
@@ -313,6 +320,7 @@ namespace Spine {
 			return (int)curves[frame];
 		}
 
+		// 压缩贝塞尔曲线的存储空间，当bezierCount大于实际贝塞尔曲线数量的时候使用
 		/// <summary>Shrinks the storage for Bezier curves, for use when <code>bezierCount</code> (specified in the constructor) was larger
 		/// than the actual number of Bezier curves.</summary>
 		public void Shrink (int bezierCount) {
@@ -328,7 +336,8 @@ namespace Spine {
 		/// Stores the segments for the specified Bezier curve. For timelines that modify multiple values, there may be more than
 		/// one curve per frame.</summary>
 		/// <param name="bezier">The ordinal of this Bezier curve for this timeline, between 0 and <code>bezierCount - 1</code> (specified
-		///					in the constructor), inclusive.</param>
+		///					in the constructor), inclusive.
+		///						当前贝塞尔曲线在整个贝塞尔曲线列表中的索引</param>
 		/// <param name="frame">Between 0 and <code>frameCount - 1</code>, inclusive.</param>
 		/// <param name="value">The index of the value for the frame this curve is used for.</param>
 		/// <param name="time1">The time for the first key.</param>
@@ -363,6 +372,7 @@ namespace Spine {
 		}
 
 		/// <summary>
+		/// 返回指定时刻的贝塞尔曲线内插值
 		/// Returns the Bezier interpolated value for the specified time.</summary>
 		/// <param name="frameIndex">The index into <see cref="Frames"/> for the values of the frame before <code>time</code>.</param>
 		/// <param name="valueOffset">The offset from <code>frameIndex</code> to the value this curve is used for.</param>
@@ -403,9 +413,10 @@ namespace Spine {
 			get { return ENTRIES; }
 		}
 
+		// 设置指定帧的时长和值
 		/// <summary>Sets the time and value for the specified frame.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
-		/// <param name="time">The frame time in seconds</param>
+		/// <param name="time">The frame time in seconds. 时长</param>
 		public void SetFrame (int frame, float time, float value) {
 			frame <<= 1;
 			frames[frame] = time;
