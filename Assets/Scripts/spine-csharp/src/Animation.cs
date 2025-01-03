@@ -288,6 +288,7 @@ namespace Spine {
 	// 时间轴基类，时间轴使用分段、线性、贝塞尔曲线在帧之间插值
 	/// <summary>The base class for timelines that interpolate between frame values using stepped, linear, or a Bezier curve.</summary>
 	public abstract class CurveTimeline : Timeline {
+		// 表示每条贝塞尔曲线所占用的存储空间大小
 		public const int LINEAR = 0, STEPPED = 1, BEZIER = 2, BEZIER_SIZE = 18;
 
 		internal float[] curves;
@@ -339,7 +340,8 @@ namespace Spine {
 		///					in the constructor), inclusive.
 		///						当前贝塞尔曲线在整个贝塞尔曲线列表中的索引</param>
 		/// <param name="frame">Between 0 and <code>frameCount - 1</code>, inclusive.</param>
-		/// <param name="value">The index of the value for the frame this curve is used for.</param>
+		/// <param name="value">The index of the value for the frame this curve is used for. 曲线所用帧的帧值索引</param>
+		/// ⭐(time1, value1), (cx1, cy1), (cx2, cy2), (time2, value2)分别表示贝塞尔曲线的两个端点和两个控制点
 		/// <param name="time1">The time for the first key.</param>
 		/// <param name="value1">The value for the first key.</param>
 		/// <param name="cx1">The time for the first Bezier handle.</param>
@@ -353,7 +355,9 @@ namespace Spine {
 
 			float[] curves = this.curves;
 			int i = FrameCount + bezier * BEZIER_SIZE;
+			// value表示曲线所用帧的帧值索引
 			if (value == 0) curves[frame] = BEZIER + i;
+			// 
 			float tmpx = (time1 - cx1 * 2 + cx2) * 0.03f, tmpy = (value1 - cy1 * 2 + cy2) * 0.03f;
 			float dddx = ((cx1 - cx2) * 3 - time1 + time2) * 0.006f, dddy = ((cy1 - cy2) * 3 - value1 + value2) * 0.006f;
 			float ddx = tmpx * 2 + dddx, ddy = tmpy * 2 + dddy;
@@ -2138,12 +2142,12 @@ namespace Spine {
 				return drawOrders;
 			}
 		}
-
+		
 		/// <summary>Sets the time and draw order for the specified frame.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
 		/// <param name="time">The frame time in seconds.</param>
 		/// <param name="drawOrder">For each slot in <see cref="Skeleton.Slots"/>, the index of the slot in the new draw order. May be null to use
-		///					 setup pose draw order.</param>
+		///					 setup pose draw order. drawOrder表示每个slot在新绘制顺序中的索引，为空则使用setup pose的绘制顺序</param>
 		public void SetFrame (int frame, float time, int[] drawOrder) {
 			frames[frame] = time;
 			drawOrders[frame] = drawOrder;

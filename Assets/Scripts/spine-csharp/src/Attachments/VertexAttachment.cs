@@ -90,15 +90,38 @@ namespace Spine {
 		/// <summary>
 		/// Transforms the attachment's local <see cref="Vertices"/> to world coordinates. If the slot's <see cref="Slot.Deform"/> is
 		/// not empty, it is used to deform the vertices.
+		/// ComputeWorldVertices 是 VertexAttachment 类中的一个方法，用于将附件的本地顶点坐标（Vertices）转换为世界坐标。它考虑了骨骼的变换和插槽（Slot）的变形（Deform），从而生成最终的世界坐标。
+		/// 这个方法的主要目的是在骨骼动画中，将与附件相关的顶点从局部坐标空间转换到全局坐标空间，以便用于渲染或其他操作。
 		/// <para />
 		/// See <a href="http://esotericsoftware.com/spine-runtime-skeletons#World-transforms">World transforms</a> in the Spine
 		/// Runtimes Guide.
 		/// </summary>
-		/// <param name="start">The index of the first <see cref="Vertices"/> value to transform. Each vertex has 2 values, x and y.</param>
-		/// <param name="count">The number of world vertex values to output. Must be less than or equal to <see cref="WorldVerticesLength"/> - start.</param>
-		/// <param name="worldVertices">The output world vertices. Must have a length greater than or equal to <paramref name="offset"/> + <paramref name="count"/>.</param>
-		/// <param name="offset">The <paramref name="worldVertices"/> index to begin writing values.</param>
-		/// <param name="stride">The number of <paramref name="worldVertices"/> entries between the value pairs written.</param>
+		/// <param name="slot">附件所属的 Slot 对象，包含骨骼信息（如变形数据和骨骼的世界变换）</param>
+		/// <param name="start">
+		///		The index of the first <see cref="Vertices"/> value to transform. Each vertex has 2 values, x and y.
+		///		本地顶点数组（Vertices）中开始计算的索引。顶点是二维的，每个顶点由 x 和 y 两个值组成。
+		///	</param>
+		/// <param name="count">
+		///		The number of world vertex values to output. Must be less than or equal to <see cref="WorldVerticesLength"/> - start.
+		///		要计算的顶点数量（以浮点值为单位）。注意，这个值是输出的世界坐标值的数量（x, y 成对）
+		///	</param>
+		/// <param name="worldVertices">
+		///		The output world vertices. Must have a length greater than or equal to <paramref name="offset"/> + <paramref name="count"/>
+		///		输出的世界坐标数组，函数会将计算结果写入到这个数组中。
+		/// .</param>
+		/// <param name="offset">The <paramref name="worldVertices"/>
+		///		index to begin writing values.
+		///		在 worldVertices 中开始写入的索引。
+		/// </param>
+		/// <param name="stride">
+		///		The number of <paramref name="worldVertices"/> entries between the value pairs written.
+		///		输出数组中每对顶点（x, y）之间的间隔，默认为 2。
+		///
+		/// 1. 处理顶点的两种情况
+		/// 顶点数据的来源有两种：
+		///		未绑定到骨骼的顶点（bones == null）：顶点直接由一个骨骼变换。
+		///		绑定到多个骨骼的顶点（bones != null）：顶点受多个骨骼的加权变换影响。
+		/// </param>
 		public virtual void ComputeWorldVertices (Slot slot, int start, int count, float[] worldVertices, int offset, int stride = 2) {
 			count = offset + (count >> 1) * stride;
 			ExposedList<float> deformArray = slot.deform;
@@ -116,6 +139,14 @@ namespace Spine {
 				}
 				return;
 			}
+			
+			// 骨骼绑定信息（bones）:
+			// bones 是一个数组，存储了每个顶点的骨骼绑定信息。
+			// 每个顶点的骨骼绑定由以下数据组成：
+			//		第一个值是绑定的骨骼数量 n。
+			//		接下来的 n 个值是骨骼索引。
+			// 跳过不需要的顶点:
+			//		根据 start 参数，跳过一些顶点的骨骼绑定数据。
 			int v = 0, skip = 0;
 			for (int i = 0; i < start; i += 2) {
 				int n = bones[v];
@@ -123,6 +154,12 @@ namespace Spine {
 				skip += n;
 			}
 			Bone[] skeletonBones = slot.bone.skeleton.bones.Items;
+			// 没有变形数据
+			// 如果插槽没有变形数据（deformArray.Count == 0），直接使用原始顶点数据计算：
+			// 遍历每个顶点绑定的骨骼。
+			// 对每个骨骼：
+			//		使用骨骼的世界变换矩阵将顶点转换为世界坐标。
+			//		根据权重（weight）对结果进行加权累加。
 			if (deformArray.Count == 0) {
 				for (int w = offset, b = skip * 3; w < count; w += stride) {
 					float wx = 0, wy = 0;
@@ -138,6 +175,10 @@ namespace Spine {
 					worldVertices[w + 1] = wy;
 				}
 			} else {
+				// 有变形数据
+				// 如果插槽有变形数据（deformArray.Count > 0），则在计算前将变形数据应用到顶点：
+				// 变形数据是一个数组，与顶点一一对应。
+				// 每个顶点的坐标加上对应的变形数据后，再进行加权变换。
 				float[] deform = deformArray.Items;
 				for (int w = offset, b = skip * 3, f = skip << 1; w < count; w += stride) {
 					float wx = 0, wy = 0;
