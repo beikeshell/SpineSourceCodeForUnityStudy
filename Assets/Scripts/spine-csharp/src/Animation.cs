@@ -33,6 +33,7 @@ using System.Collections.Generic;
 namespace Spine {
 
 	/// <summary>
+	/// 一个动画非常简单，有一个名称和一系列时间轴。每个时间轴知道在何时如何修改一个具体骨架属性。将动画应用到骨架是通过为动画中的每个时间轴调用apply完成。
 	/// Stores a list of timelines to animate a skeleton's pose over time.</summary>
 	public class Animation {
 		internal String name;
@@ -1819,7 +1820,10 @@ namespace Spine {
 		/// <summary>Sets the time and vertices for the specified frame.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
 		/// <param name="time">The frame time in seconds.</param>
-		/// <param name="vertices">Vertex positions for an unweighted VertexAttachment, or deform offsets if it has weights.</param>
+		/// <param name="vertices">
+		///		Vertex positions for an unweighted VertexAttachment, or deform offsets if it has weights.
+		///		无加权VertexAttachment的顶点位置; 若带权重, 则为变形偏移量.
+		/// </param>
 		public void SetFrame (int frame, float time, float[] vertices) {
 			frames[frame] = time;
 			this.vertices[frame] = vertices;

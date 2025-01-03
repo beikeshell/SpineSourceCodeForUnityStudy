@@ -32,6 +32,7 @@ using System;
 namespace Spine {
 	/// <summary>
 	/// <para>
+	/// 存储一个IK约束的当前姿势. IK约束会调整1或2个受约束骨骼的旋转, 使最后一个骨骼的顶端尽量接近目标骨骼.
 	/// Stores the current pose for an IK constraint. An IK constraint adjusts the rotation of 1 or 2 constrained bones so the tip of
 	/// the last bone is as close to the target bone as possible.</para>
 	/// <para>

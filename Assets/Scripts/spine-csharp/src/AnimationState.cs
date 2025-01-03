@@ -34,6 +34,14 @@ namespace Spine {
 
 	/// <summary>
 	/// <para>
+	/// AnimationState支持随时应用动画、排队稍后播放、混合动画(交叉淡入淡出)及在各动画上应用多个动画(分层)。
+	/// AnimationState是有状态的，用于存储动画时间及应用动画的其他参数。虽然一个AnimationState可以调整多个骨架姿势，但是很少有情况需要让多个骨架姿势完全一样。
+	/// 通常每个骨架实例使用一个AnimationState实例。
+	/// AnimationState建立在时间轴API上，可处理多数播放需求，向后播放除外。如需反向播放，可直接使用时间轴API，或使用框选缩放来复制和反向播放动画。
+	/// 按时间顺序应用动画, 队列待播放的后续动画, 在动画间混合(淡入淡出), 以及在各动画之上相互堆叠应用多个动画(动画分层).
+	///
+	/// 创建一个AnimationState实例需要提供一个AnimationStateData。当AnimationState更改当前动画时，会使用AnimationStateData中定义的混合时间自动混合动画(交叉淡入淡出)，从而实现流畅的动画过渡。
+	/// 
 	/// Applies animations over time, queues animations for later playback, mixes (crossfading) between animations, and applies
 	/// multiple animations on top of each other (layering).</para>
 	/// <para>
@@ -678,6 +686,10 @@ namespace Spine {
 			return SetAnimation(trackIndex, animation, loop);
 		}
 
+		// 设置track动画通过调用setAnimation完成。将使用指定的动画取代该track中的当前动画和任何已排队的动画。
+		// 如果在前一动画和当前动画之间定义了混合动画时间，则当前动画将在混合动画时间上混出，让动画过渡更流畅。
+		// setAnimation返回一个TrackEntry，可以多种方式自定义播放。
+		// 默认动画将继续应用直至另一动画播放或track清空。要在一个具体时间后停止动画，可设置TrackEntry trackEnd时间。
 		/// <summary>Sets the current animation for a track, discarding any queued animations. If the formerly current track entry was never
 		/// applied to a skeleton, it is replaced (not mixed from).</summary>
 		/// <param name="loop">If true, the animation will repeat. If false it will not, instead its last frame is applied if played beyond its
@@ -714,6 +726,9 @@ namespace Spine {
 			return AddAnimation(trackIndex, animation, loop, delay);
 		}
 
+		// 要排队动画在将来播放，可调用addAnimation，安排该动画在此track当前动画或最后排队的动画后播放。如果此track空了，则等于调用setAnimation。
+		// 当在空track上设置一个动画，则立即开始播放。类似地，如果清空了一个track，动画将停止应用。要混入或混出一个动画，可指定一个空动画，即没有时间轴的动画。
+		// 空动画作为一个占位符，可设置混合时间。为了方便，提供有setEmptyAnimation和addEmptyAnimation方法用于设置或排队空动画。
 		/// <summary>Adds an animation to be played after the current or last queued animation for a track. If the track is empty, it is
 		/// equivalent to calling <see cref="SetAnimation(int, Animation, bool)"/>.</summary>
 		/// <param name="delay">
@@ -938,6 +953,7 @@ namespace Spine {
 		/// </summary>
 		public float TimeScale { get { return timeScale; } set { timeScale = value; } }
 
+		// 用来查找动画过渡mix时间
 		/// <summary>The AnimationStateData to look up mix durations.</summary>
 		public AnimationStateData Data {
 			get {
@@ -949,6 +965,8 @@ namespace Spine {
 			}
 		}
 
+		// 已有动画的轨道列表
+		// 每个动画都会单独放到一个轨道上播放
 		/// <summary>A list of tracks that have animations, which may contain nulls.</summary>
 		public ExposedList<TrackEntry> Tracks { get { return tracks; } }
 
@@ -968,6 +986,13 @@ namespace Spine {
 
 	/// <summary>
 	/// <para>
+	/// Track可分层应用动画，每个track存储了一个动画和播放参数。Track编号从零累加(track索引在内部是一个数组索引)。
+	/// 在将AnimationState应用到一个骨架后，track动画会从最低的track号开始依序应用。
+	///
+	/// Track有许多用途，例如，没有任何关键帧的动画可在高层track中运行，只覆盖有关键帧的低层track。
+	/// 例如，Track 0可以有行走、奔跑、游泳或其他动画，track 1可以有一个只为手臂和开枪设置了关键帧的射击动画。
+	/// 此外，为高层track设置TrackEntry alpha可使其与下面的轨道混合。
+	/// 例如，track 0可以有一个行走动画，track 1可以有一个跛行动画。当玩家受伤时，track 1的alpha值会增加，跛行会加重。
 	/// Stores settings and other state for the playback of an animation on an <see cref="AnimationState"/> track.</para>
 	/// <para>
 	/// References to a track entry must not be kept after the <see cref="AnimationStateListener.Dispose(TrackEntry)"/> event occurs.</para>
@@ -1035,6 +1060,11 @@ namespace Spine {
 
 		///<summary>
 		/// <para>
+		/// 指定动画播放推后时长(秒). 当该轨道条目为当前轨道条目时, delay会推后 trackTime 的递增. 当队列该轨道条目时,
+		/// delay表示从上一个动画开始到该轨道条目成为当前轨道条目的时间(即当上一轨道条目的trackTime >= 该轨道条目的delay).
+		/// timeScale会影响该值(delay).
+		/// 当使用delay <= 0的addAnimation时, 延迟是使用AnimationStateData中的mix持续时间来设置的. 若之后设置了mixDuration则可能需要再调整延迟.
+		/// 
 		/// Seconds to postpone playing the animation. When this track entry is the current track entry, <code>Delay</code>
 		/// postpones incrementing the <see cref="TrackEntry.TrackTime"/>. When this track entry is queued, <code>Delay</code> is the time from
 		/// the start of the previous animation to when this track entry will become the current track entry (ie when the previous
@@ -1090,12 +1120,15 @@ namespace Spine {
 		public float AnimationStart { get { return animationStart; } set { animationStart = value; } }
 
 		/// <summary>
+		/// 该动画最后一帧的时刻(秒). 非循环动画不会超过这个时间, 而循环动画会在该时间段内循环回到
 		/// Seconds for the last frame of this animation. Non-looping animations won't play past this time. Looping animations will
 		/// loop back to <see cref="TrackEntry.AnimationStart"/> at this time. Defaults to the animation <see cref="Animation.Duration"/>.
 		///</summary>
 		public float AnimationEnd { get { return animationEnd; } set { animationEnd = value; } }
 
 		/// <summary>
+		/// 上一次应用该动画的时间(秒). 一些时间轴使用该时间点进行一次性触发. 例如当应用该动画时, 事件时间轴将触发从animationLast(不含)到animationTime(包含)间的所有事件.
+		/// 默认值为-1, 以确保首次应用该动画时第0帧可以触发.
 		/// The time in seconds this animation was last applied. Some timelines use this for one-time triggers. Eg, when this
 		/// animation is applied, event timelines will fire all events between the <code>AnimationLast</code> time (exclusive) and
 		/// <code>AnimationTime</code> (inclusive). Defaults to -1 to ensure triggers on frame 0 happen the first time this animation
@@ -1109,6 +1142,7 @@ namespace Spine {
 		}
 
 		/// <summary>
+		/// 使用 trackTime 来计算 animationTime 值. 当trackTime为0时, animationTime等于animationStart时间.
 		/// Uses <see cref="TrackEntry.TrackTime"/> to compute the <code>AnimationTime</code>. When the <code>TrackTime</code> is 0, the
 		/// <code>AnimationTime</code> is equal to the <code>AnimationStart</code> time.
 		/// <para>
@@ -1148,6 +1182,8 @@ namespace Spine {
 
 		/// <summary>
 		/// <para>
+		/// 当该值 < 1则将该动画与skeleton的当前姿势(通常是较低轨道设置的姿势)做mix. 默认值为1, 表示用该动画覆盖skeleton的当前姿势.
+		/// 通常情况下用0号轨道来呈现skeleton最终摆好的姿势, 然后在更高的轨道上设置alpha值. 若skeleton姿势来自最后一帧的渲染, 那么在0号轨道上使用alpha就毫无意义了.
 		/// Values < 1 mix this animation with the skeleton's current pose (usually the pose resulting from lower tracks). Defaults
 		/// to 1, which overwrites the skeleton's current pose with this animation.</para>
 		/// <para>
@@ -1159,6 +1195,7 @@ namespace Spine {
 		public float InterruptAlpha { get { return interruptAlpha; } }
 
 		/// <summary>
+		/// 当mix比例(mixTime / mixDuration)小于attachmentThreshold时, 淡出该动画将应用附件时间轴. 默认值为0, 因此默认淡出该动画时不应用附件时间轴.
 		/// When the mix percentage (<see cref="TrackEntry.MixTime"/> / <see cref="TrackEntry.MixDuration"/>) is less than the
 		/// <code>EventThreshold</code>, event timelines are applied while this animation is being mixed out. Defaults to 0, so event
 		/// timelines are not applied while this animation is being mixed out.

@@ -32,15 +32,19 @@ using System.Collections.Generic;
 
 namespace Spine {
 
+	// 存储当AnimationState里的动画发生更改时，许应用的mix(crossfade，交叉渐变)的持续时间
+	// AnimationStateData是无状态的。同一个AnimationStateData实例可与多个AnimationStates共用。
 	/// <summary>Stores mix (crossfade) durations to be applied when AnimationState animations are changed.</summary>
 	public class AnimationStateData {
 		internal SkeletonData skeletonData;
 		readonly Dictionary<AnimationPair, float> animationToMixTime = new Dictionary<AnimationPair, float>(AnimationPairComparer.Instance);
 		internal float defaultMix;
 
+		// 当指定了动画名时，用于查找动画的SkeletonData
 		/// <summary>The SkeletonData to look up animations when they are specified by name.</summary>
 		public SkeletonData SkeletonData { get { return skeletonData; } }
 
+		// 默认mix，如果没有指定mix，则使用默认mix
 		/// <summary>
 		/// The mix duration to use when no mix duration has been specifically defined between two animations.</summary>
 		public float DefaultMix { get { return defaultMix; } set { defaultMix = value; } }
@@ -50,6 +54,7 @@ namespace Spine {
 			this.skeletonData = skeletonData;
 		}
 
+		// 设置从fromName动画到toName动画的mix
 		/// <summary>Sets a mix duration by animation names.</summary>
 		public void SetMix (string fromName, string toName, float duration) {
 			Animation from = skeletonData.FindAnimation(fromName);
@@ -59,6 +64,7 @@ namespace Spine {
 			SetMix(from, to, duration);
 		}
 
+		// 设置从from动画到to动画的mix时间
 		/// <summary>Sets a mix duration when changing from the specified animation to the other.
 		/// See TrackEntry.MixDuration.</summary>
 		public void SetMix (Animation from, Animation to, float duration) {
@@ -69,6 +75,7 @@ namespace Spine {
 			animationToMixTime.Add(key, duration);
 		}
 
+		// 获取从from动画到to动画的mix时间，如果未设置，返回默认值
 		/// <summary>
 		/// The mix duration to use when changing from the specified animation to the other,
 		/// or the DefaultMix if no mix duration has been set.

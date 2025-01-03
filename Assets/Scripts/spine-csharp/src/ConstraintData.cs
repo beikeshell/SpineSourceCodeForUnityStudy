@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Spine {
+	// ConstraintData 是所有约束数据的基类，表示骨骼动画中约束的基本信息。约束是骨骼动画中用来限制或影响骨骼行为的规则，比如 IK（反向动力学）约束、路径约束等
 	/// <summary>The base class for all constraint datas.</summary>
 	public abstract class ConstraintData {
 		internal readonly string name;
@@ -42,13 +43,16 @@ namespace Spine {
 			this.name = name;
 		}
 
+		// 约束名称, 该名称在skeleton中的所有同类约束中保持唯一.
 		/// <summary> The constraint's name, which is unique across all constraints in the skeleton of the same type.</summary>
 		public string Name { get { return name; } }
 
+		// 表示约束的顺序（ordinal）。这个顺序决定了骨骼在调用 Skeleton.UpdateWorldTransform() 时，约束的应用顺序。
 		///<summary>The ordinal of this constraint for the order a skeleton's constraints will be applied by
 		/// <see cref="Skeleton.UpdateWorldTransform()"/>.</summary>
 		public int Order { get { return order; } set { order = value; } }
 
+		// 表示是否需要特定的皮肤（Skin）才能更新此约束。如果为 true，则只有当骨骼的皮肤包含此约束时，才会更新。
 		///<summary>When true, <see cref="Skeleton.UpdateWorldTransform()"/> only updates this constraint if the <see cref="Skeleton.Skin"/> contains
 		/// this constraint.</summary>
 		///<seealso cref="Skin.Constraints"/>
