@@ -39,8 +39,16 @@ namespace Spine {
 		internal readonly TextureRegion[] regions;
 		internal int start, digits, setupIndex;
 
+		/// <summary>
+		/// 第一帧在图集中的索引
+		/// </summary>
 		public int Start { get { return start; } set { start = value; } }
+		
+		/// <summary>
+		/// digits 表示序列帧文件名中的数字部分的位数
+		/// </summary>
 		public int Digits { get { return digits; } set { digits = value; } }
+		
 		/// <summary>The index of the region to show for the setup pose.</summary>
 		public int SetupIndex { get { return setupIndex; } set { setupIndex = value; } }
 		public TextureRegion[] Regions { get { return regions; } }

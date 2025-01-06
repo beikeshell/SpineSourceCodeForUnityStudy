@@ -142,6 +142,10 @@ namespace Spine {
 		}
 
 		/// <summary>
+		/// 根据传入的时间增量 delta 更新每个动画轨道的时间。
+		///		1. 切换到下一个动画轨道（如果有），并处理混合（mixing）逻辑。
+		///		2. 清理已经完成的动画轨道。
+		///		3. 调度相关的事件（如动画结束、切换动画等）。
 		/// Increments the track entry <see cref="TrackEntry.TrackTime"/>, setting queued animations as current if needed.</summary>
 		/// <param name="delta">delta time</param>
 		public void Update (float delta) {
@@ -185,6 +189,7 @@ namespace Spine {
 					ClearNext(current);
 					continue;
 				}
+				
 				if (current.mixingFrom != null && UpdateMixingFrom(current, delta)) {
 					// End mixing from entries once all have completed.
 					TrackEntry from = current.mixingFrom;
