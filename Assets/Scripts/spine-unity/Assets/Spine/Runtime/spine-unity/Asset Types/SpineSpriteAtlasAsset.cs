@@ -42,12 +42,21 @@ using System.Reflection;
 #endif
 
 namespace Spine.Unity {
+	// 该类是一个Spine Atlas适配类，主要用于将Unity的SpriteAtlas(精灵图集)与Spine的Atlas数据结构进行结合，从而在Spine中使用Unity的精灵图集.
 	/// <summary>Loads and stores a Spine atlas and list of materials.</summary>
 	[CreateAssetMenu(fileName = "New Spine SpriteAtlas Asset", menuName = "Spine/Spine SpriteAtlas Asset")]
 	public class SpineSpriteAtlasAsset : AtlasAssetBase {
+		
+		// 存储 Unity 的 SpriteAtlas 文件。它是这个类的核心资源，所有的精灵和纹理信息都来源于此。
 		public SpriteAtlas spriteAtlasFile;
+		
+		// 存储与 SpriteAtlas 相关联的材质数组。每个材质对应一个纹理（通常一个图集只有一个纹理）。
 		public Material[] materials;
+		
+		// Spine 的 Atlas 对象，表示 Spine 使用的图集数据结构。这个字段在运行时被动态生成。
 		protected Atlas atlas;
+		
+		// 一个布尔值，指示是否在运行时更新图集的区域信息（通常用于调试或特定需求）。
 		public bool updateRegionsInPlayMode;
 
 		[System.Serializable]
@@ -94,6 +103,7 @@ namespace Spine.Unity {
 			atlas = null;
 		}
 
+		// 返回Spine的Atlas对象。
 		/// <returns>The atlas or null if it could not be loaded.</returns>
 		public override Atlas GetAtlas (bool onlyMetaData = false) {
 			if (spriteAtlasFile == null) {
@@ -108,6 +118,7 @@ namespace Spine.Unity {
 				return null;
 			}
 
+			// atlas已加载，直接返回。
 			if (atlas != null) return atlas;
 
 			try {
@@ -151,9 +162,7 @@ namespace Spine.Unity {
 				region.height = Math.Abs((int)height);
 
 				// flip upside down
-				var temp = region.v;
-				region.v = region.v2;
-				region.v2 = temp;
+				(region.v, region.v2) = (region.v2, region.v);
 
 				region.originalWidth = (int)width;
 				region.originalHeight = (int)height;
@@ -167,6 +176,7 @@ namespace Spine.Unity {
 			}
 		}
 
+		// 将Unity的SpriteAtlas转换为Spine的Atlas的核心代码
 		private Atlas LoadAtlas (UnityEngine.U2D.SpriteAtlas spriteAtlas) {
 
 			List<AtlasPage> pages = new List<AtlasPage>();
@@ -190,6 +200,7 @@ namespace Spine.Unity {
 			material.mainTexture = texture;
 #endif
 
+			// 创建Spine的AtlasPage对象，表示Spine图集的页面信息（包括纹理、尺寸、过滤模式等）
 			Spine.AtlasPage page = new AtlasPage();
 			page.name = spriteAtlas.name;
 			page.width = texture.width;
@@ -202,9 +213,9 @@ namespace Spine.Unity {
 			page.vWrap = TextureWrap.ClampToEdge;
 			page.rendererObject = material;
 			pages.Add(page);
-
+			
+			// 遍历所有精灵，为每个精灵创建Spine的AtlasRegion对象，表示Spine图集的一个区域
 			sprites = AccessPackedSprites(spriteAtlas);
-
 			int i = 0;
 			for (; i < sprites.Length; ++i) {
 				var sprite = sprites[i];

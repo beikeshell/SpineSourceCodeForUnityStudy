@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Spine.Unity {
+	// Spine的Atlas资源类，用来表示Spine中的Atlas资源
 	public abstract class AtlasAssetBase : ScriptableObject {
 		public abstract Material PrimaryMaterial { get; }
 		public abstract IEnumerable<Material> Materials { get; }
