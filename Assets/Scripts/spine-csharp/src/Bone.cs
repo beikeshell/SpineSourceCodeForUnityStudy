@@ -30,6 +30,18 @@
 using System;
 
 namespace Spine {
+	// 骨骼以层级方式排列，每个骨骼受父骨骼影响，一直到根骨骼。
+	// 例如，当一个骨骼旋转时，所有子骨骼及其子骨骼也会旋转。要实现这点，每个骨骼都有一个本地变换，包含:
+	// x 和 y
+	// rotation
+	// scaleX 和 scaleY
+	// shearX 和 shearY
+	// 从根开始，先是父骨骼，本地变换用于计算每个骨骼的世界变换。世界变换包含:
+	// a、b、c 及 d 这是一个2x2矩阵，用于编码联合旋转、缩放和剪切骨骼及所有父骨骼一直到根。a和c是X轴，b和d是Y轴。
+	// worldX 和 worldY 这是骨骼的世界位置，世界坐标系统是放置根骨骼的坐标系统。
+	// 世界变换可将骨骼的本地坐标变换到世界坐标。附加到一个骨骼的网格顶点被该骨骼的世界变换所变换。生成的顶点受该骨骼及其所有父骨骼影响。
+	// ⭐此机制是Spine骨架动画系统的核心。
+	// 世界变换还可以反向变换，将世界坐标的任一点转换到该骨骼的本地坐标。
 	/// <summary>
 	/// Stores a bone's current pose.
 	/// <para>
@@ -157,6 +169,10 @@ namespace Spine {
 			UpdateWorldTransform(x, y, rotation, scaleX, scaleY, shearX, shearY);
 		}
 
+		// 通常不直接修改骨骼的世界变换，而是修改本地变换，再使用本地变换和父骨骼的世界变换计算此世界变换。
+		// 无论何时修改了骨骼的本地变换，必须通过调用Bone updateWorldTransform来重新计算该骨骼的世界变换及其所有子节点。
+		// 但是，骨骼必须按正确顺序更新，所以更常见的方法是调用Skeleton updateWorldTransform，它不仅按正确顺序更新所有骨骼，还应用所有的约束。
+		// 应用动画还总是会修改骨骼的本地变换，渲染骨架则使用的是骨骼的世界变换，所以在应用动画后渲染发生前常调用
 		/// <summary>Computes the world transform using the parent bone and the specified local transform. The applied transform is set to the
 		/// specified local transform. Child bones are not updated.
 		/// <para>
@@ -173,7 +189,9 @@ namespace Spine {
 
 			Bone parent = this.parent;
 			if (parent == null) { // Root bone.
-				float rotationY = rotation + 90 + shearY, sx = skeleton.ScaleX, sy = skeleton.ScaleY;
+				float rotationY = rotation + 90 + shearY;
+				float sx = skeleton.ScaleX; 
+				float sy = skeleton.ScaleY;
 				a = MathUtils.CosDeg(rotation + shearX) * scaleX * sx;
 				b = MathUtils.CosDeg(rotationY) * scaleY * sx;
 				c = MathUtils.SinDeg(rotation + shearX) * scaleX * sy;

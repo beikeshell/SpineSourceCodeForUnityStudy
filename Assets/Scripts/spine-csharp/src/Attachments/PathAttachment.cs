@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Spine {
+	// PathAttachment 类的主要作用是表示路径附件（Path Attachment），用于定义一段路径（如曲线或线段），可以在 Spine 动画中用于约束其他对象沿着路径运动。
 	public class PathAttachment : VertexAttachment {
 		internal float[] lengths;
 		internal bool closed, constantSpeed;

@@ -31,13 +31,16 @@ using System;
 
 namespace Spine {
 
+	// 存储一个槽位的当前姿势. 槽位按 drawOrder 排序附件, 并存储附件的状态. 状态不能存储在附件内部, 因为附件是无状态的且可以在多个skeleton间共享.
 	/// <summary>
 	/// Stores a slot's current pose. Slots organize attachments for <see cref="Skeleton.DrawOrder"/> purposes and provide a place to store
 	/// state for an attachment.State cannot be stored in an attachment itself because attachments are stateless and may be shared
 	/// across multiple skeletons.
 	/// </summary>
 	public class Slot {
+		// 默认姿势数据
 		internal SlotData data;
+		// 槽位所属的骨骼
 		internal Bone bone;
 		internal float r, g, b, a;
 		internal float r2, g2, b2;
@@ -150,6 +153,8 @@ namespace Spine {
 			}
 		}
 
+		// 用于变形槽位附件的值. 对于无加权网格, 各条目表示每个顶点的局部位置. 而对于加权网格, 各条目表示每个顶点相对于网格局部顶点位置的偏移量.
+		// 详见 computeWorldVertices 和 DeformTimeline.
 		/// <summary>
 		/// The index of the texture region to display when the slot's attachment has a <see cref="Sequence"/>. -1 represents the
 		/// <see cref="Sequence.SetupIndex"/>.

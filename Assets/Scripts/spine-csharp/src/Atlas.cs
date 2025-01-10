@@ -370,6 +370,7 @@ namespace Spine {
 		// 是否使用预乘透明度（Premultiplied Alpha）
 		public bool pma;
 		// 用于存储与具体渲染引擎相关的纹理对象
+		// 加载图集时由TextureLoader设置
 		public object rendererObject;
 
 		public AtlasPage Clone () {

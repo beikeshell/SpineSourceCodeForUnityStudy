@@ -46,13 +46,27 @@ namespace Spine {
 		internal float x, y;
 
 		public SkeletonData Data { get { return data; } }
+		// skeleton的骨骼，按照父子关系排序，根骨骼总是第一个骨骼
 		public ExposedList<Bone> Bones { get { return bones; } }
 		public ExposedList<IUpdatable> UpdateCacheList { get { return updateCache; } }
+		// skeleton的槽位
 		public ExposedList<Slot> Slots { get { return slots; } }
+		
+		// skeleton槽位的绘制顺序，修改该数组可以更改绘制顺序
+		// 要为通用运行时执行渲染，Skeleton类提供了一个drawOrder属性，这是一个按绘制顺序排列的插槽列表。渲染包括从各插槽获取附件，检测其类型并根据需要渲染。需要渲染的附件类型如下:
+		// RegionAttachment 有4个顶点和四条边(不总是矩形)。
+		// MeshAttachment 有任意数量的顶点和三角形，都由骨架数据提供，渲染器无需执行任何三角测量。
 		public ExposedList<Slot> DrawOrder { get { return drawOrder; } }
+		
+		// skeleton的IK约束
 		public ExposedList<IkConstraint> IkConstraints { get { return ikConstraints; } }
+		
+		// skeleton的路径约束
 		public ExposedList<PathConstraint> PathConstraints { get { return pathConstraints; } }
+		
 		public ExposedList<SpringConstraint> SpringConstraints { get { return SpringConstraints; } }
+		
+		// 变换约束
 		public ExposedList<TransformConstraint> TransformConstraints { get { return transformConstraints; } }
 
 		public Skin Skin {
@@ -65,7 +79,11 @@ namespace Spine {
 		public float G { get { return g; } set { g = value; } }
 		public float B { get { return b; } set { b = value; } }
 		public float A { get { return a; } set { a = value; } }
+		// 设置skeleton的X位置, 它表示相对于根骨骼的worldX位置的偏移量.
+		// 不继承父骨骼平移的骨骼仍受此属性影响.
 		public float X { get { return x; } set { x = value; } }
+		// 设置skeleton的Y位置, 它表示相对于根骨骼的worldY位置的偏移量.
+		// 不继承父骨骼平移的骨骼仍受此属性影响.
 		public float Y { get { return y; } set { y = value; } }
 		public float ScaleX { get { return scaleX; } set { scaleX = value; } }
 		public float ScaleY { get { return scaleY * (Bone.yDown ? -1 : 1); } set { scaleY = value; } }
@@ -76,6 +94,7 @@ namespace Spine {
 		[Obsolete("Use ScaleY instead. FlipY is when ScaleY is negative.")]
 		public bool FlipY { get { return scaleY < 0; } set { scaleY = value ? -1f : 1f; } }
 
+		// 根骨骼
 		/// <summary>Returns the root bone, or null if the skeleton has no bones.</summary>
 		public Bone RootBone {
 			get { return bones.Count == 0 ? null : bones.Items[0]; }

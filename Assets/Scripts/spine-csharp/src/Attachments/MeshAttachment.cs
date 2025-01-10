@@ -30,11 +30,28 @@
 using System;
 
 namespace Spine {
+	// 有任意数量的顶点和三角形，都由骨架数据提供，渲染器无需执行任何三角测量
 	/// <summary>Attachment that displays a texture region using a mesh.</summary>
 	public class MeshAttachment : VertexAttachment, IHasTextureRegion {
 		internal TextureRegion region;
 		internal string path;
-		internal float[] regionUVs, uvs;
+		
+		// regionUVs
+		// 定义：regionUVs 存储的是顶点在纹理区域（region）中的 UV 坐标，范围通常是 [0, 1]。
+		// 用途：它定义了当前网格（Mesh）的顶点如何映射到纹理的局部区域。
+		// 特点：
+		// 它是静态的，通常在网格初始化时由 Spine 编辑器生成并不会动态改变。
+		// 它描述的是相对于纹理区域（region）的 UV 坐标，而不是整个纹理图的 UV 坐标。
+		internal float[] regionUVs;
+		
+		// uvs
+		// 定义：uvs 存储的是顶点在整个纹理图（Texture）中的 UV 坐标，范围也是 [0, 1]。
+		// 用途：它用于实际渲染时，告诉渲染器网格的顶点如何映射到整个纹理图。
+		// 特点：
+		// 它是动态计算的，每当纹理区域（region）发生变化时，uvs 都需要重新计算（通过 UpdateRegion 函数）。
+		// 它是将 regionUVs 转换为基于整个纹理图的 UV 坐标。
+		internal float[] uvs;
+		
 		internal int[] triangles;
 		internal float r = 1, g = 1, b = 1, a = 1;
 		internal int hullLength;
@@ -127,7 +144,10 @@ namespace Spine {
 
 		public void UpdateRegion () {
 			float[] regionUVs = this.regionUVs;
-			if (this.uvs == null || this.uvs.Length != regionUVs.Length) this.uvs = new float[regionUVs.Length];
+			if (this.uvs == null || this.uvs.Length != regionUVs.Length)
+			{
+				this.uvs = new float[regionUVs.Length];
+			}
 			float[] uvs = this.uvs;
 			int n = uvs.Length;
 			float u, v, width, height;

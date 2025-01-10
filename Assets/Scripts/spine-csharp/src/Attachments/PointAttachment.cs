@@ -36,6 +36,7 @@ namespace Spine {
 	/// See <a href="http://esotericsoftware.com/spine-point-attachments">Point Attachments</a> in the Spine User Guide.
 	/// </summary>
 	public class PointAttachment : Attachment {
+		// 点的局部坐标
 		internal float x, y, rotation;
 		public float X { get { return x; } set { x = value; } }
 		public float Y { get { return y; } set { y = value; } }

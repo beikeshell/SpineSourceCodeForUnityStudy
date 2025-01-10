@@ -35,9 +35,10 @@ namespace Spine {
 	public static class MathUtils {
 		public const float PI = 3.1415927f;
 		public const float PI2 = PI * 2;
+		// 弧度 --> 角度
 		public const float RadDeg = 180f / PI;
+		// 角度 --> 弧度
 		public const float DegRad = PI / 180;
-
 		static Random random = new Random();
 
 #if USE_FAST_SIN_COS_ATAN2_APPROXIMATIONS
@@ -115,6 +116,23 @@ namespace Spine {
 			return (float)Math.Cos(degrees * DegRad);
 		}
 
+		// atan2 的优势
+		// 象限判断：
+		//
+		// atan2 会根据 x 和 y 的符号，自动判断点 (x, y) 所在的象限，并返回正确的角度。
+		// 例如：
+		// 第一象限：x > 0, y > 0，返回角度在 [0, π/2]。
+		// 第二象限：x < 0, y > 0，返回角度在 [π/2, π]。
+		// 第三象限：x < 0, y < 0，返回角度在 [-π, -π/2]。
+		// 第四象限：x > 0, y < 0，返回角度在 [-π/2, 0]。
+		// 完整范围：
+		//
+		// atan2 的返回值范围是 [-π, π]，覆盖了整个圆（360°），而普通的 atan 只能返回 [-π/2, π/2]。
+		// 避免除零错误：
+		//
+		// 在普通的 atan(y / x) 中，如果 x = 0，会导致除零错误。而 atan2 可以处理这种情况：
+		// 如果 x = 0 且 y > 0，返回 π/2。
+		// 如果 x = 0 且 y < 0，返回 -π/2。
 		/// <summary>Returns the atan2 using Math.Atan2.</summary>
 		static public float Atan2 (float y, float x) {
 			return (float)Math.Atan2(y, x);

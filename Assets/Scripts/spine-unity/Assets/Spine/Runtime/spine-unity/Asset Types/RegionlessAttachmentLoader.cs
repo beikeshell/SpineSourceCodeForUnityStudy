@@ -32,9 +32,16 @@ using UnityEngine;
 
 namespace Spine.Unity {
 
+	// RegionlessAttachmentLoader 是一个自定义的 AttachmentLoader 类，专门用于加载 Spine 的各种附件（Attachments），
+	// 但它的实现方式是为附件提供一个“空”的区域（EmptyRegion），而不是实际的纹理或图像资源。
 	public class RegionlessAttachmentLoader : AttachmentLoader {
 
 		static AtlasRegion emptyRegion;
+		// EmptyRegion 是一个静态属性，用于提供一个“空的”纹理区域（AtlasRegion）。
+		// 它的实现中创建了一个虚拟的 AtlasRegion 和 AtlasPage：
+		// AtlasRegion 的名字是 "Empty AtlasRegion"。
+		// AtlasPage 使用了一个特殊的材质（Material），其中的 Shader 是 Spine/Special/HiddenPass，并且材质的名字是 "NoRender Material"。
+		// 这个设计的目的是为附件提供一个占位的区域，而不需要实际的纹理资源。
 		static AtlasRegion EmptyRegion {
 			get {
 				if (emptyRegion == null) {

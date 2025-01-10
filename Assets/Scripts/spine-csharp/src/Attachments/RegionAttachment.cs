@@ -30,6 +30,7 @@
 using System;
 
 namespace Spine {
+	// 有4个顶点和4条边的四边形（并不总是矩形）
 	/// <summary>Attachment that displays a texture region.</summary>
 	public class RegionAttachment : Attachment, IHasTextureRegion {
 		public const int BLX = 0, BLY = 1;

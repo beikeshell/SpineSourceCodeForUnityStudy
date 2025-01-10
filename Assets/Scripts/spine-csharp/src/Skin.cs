@@ -44,7 +44,9 @@ namespace Spine {
 		internal readonly ExposedList<BoneData> bones = new ExposedList<BoneData>();
 		internal readonly ExposedList<ConstraintData> constraints = new ExposedList<ConstraintData>();
 
+		// 皮肤的名称, 在skeleton的所有皮肤中应保持唯一.
 		public string Name { get { return name; } }
+		// 该皮肤包含的所有附件
 		///<summary>Returns all attachments contained in this skin.</summary>
 		public ICollection<SkinEntry> Attachments { get { return attachments.Values; } }
 		public ExposedList<BoneData> Bones { get { return bones; } }
@@ -176,7 +178,9 @@ namespace Spine {
 		}
 
 		private struct SkinKey {
+			// 插槽索引
 			internal readonly int slotIndex;
+			// Spine编辑器中定义的皮肤占位符名称，无需是附件名称
 			internal readonly string name;
 			internal readonly int hashCode;
 
