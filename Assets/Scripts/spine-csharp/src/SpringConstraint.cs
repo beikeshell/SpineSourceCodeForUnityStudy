@@ -30,6 +30,8 @@
 using System;
 
 namespace Spine {
+	// 弹簧约束
+	// 通过bones列表，SpringConstraint管理一组受弹簧约束影响的骨骼，这些骨骼会根据弹簧约束从参数和物理模拟发生动态变化
 	/// <summary>
 	/// Stores the current pose for a spring constraint. A spring constraint applies physics to bones.
 	/// <para>
@@ -37,10 +39,24 @@ namespace Spine {
 	/// </summary>
 	public class SpringConstraint : IUpdatable {
 		internal readonly SpringConstraintData data;
+		// 受到弹簧约束的骨骼列表
 		internal readonly ExposedList<Bone> bones;
 		// BOZO! - stiffness -> strength. stiffness, damping, rope, stretch -> move to spring.
-		internal float mix, friction, gravity, wind, stiffness, damping;
-		internal bool rope, stretch;
+		internal float mix;
+		// 摩擦力
+		internal float friction;
+		// 重力
+		internal float gravity;
+		// 风力
+		internal float wind;
+		// 刚度
+		internal float stiffness;
+		// 阻尼
+		internal float damping;
+		// 是否使用绳索模式，限制骨骼的拉伸
+		internal bool rope;
+		// 是否允许骨骼拉伸
+		internal bool stretch;
 
 		internal bool active;
 

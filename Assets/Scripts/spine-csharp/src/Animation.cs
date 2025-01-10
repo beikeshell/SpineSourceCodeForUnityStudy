@@ -33,7 +33,8 @@ using System.Collections.Generic;
 namespace Spine {
 
 	/// <summary>
-	/// 一个动画非常简单，有一个名称和一系列时间轴。每个时间轴知道在何时如何修改一个具体骨架属性。将动画应用到骨架是通过为动画中的每个时间轴调用apply完成。
+	/// 一个动画非常简单，有一个名称和一系列时间轴。每个时间轴知道在何时如何修改一个具体骨架属性。
+	/// 将动画应用到骨架是通过为动画中的每个时间轴调用apply完成。
 	/// Stores a list of timelines to animate a skeleton's pose over time.</summary>
 	public class Animation {
 		internal String name;

@@ -30,6 +30,7 @@
 using System;
 
 namespace Spine {
+	// 弹簧约束数据
 	/// <summary>
 	/// Stores the setup pose for a <see cref="SpringConstraint"/>.
 	/// <para>

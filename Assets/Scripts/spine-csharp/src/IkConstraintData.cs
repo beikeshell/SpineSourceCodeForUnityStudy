@@ -33,7 +33,9 @@ using System.Collections.Generic;
 namespace Spine {
 	/// <summary>Stores the setup pose for an IkConstraint.</summary>
 	public class IkConstraintData : ConstraintData {
+		// 受IK约束的骨骼列表
 		internal ExposedList<BoneData> bones = new ExposedList<BoneData>();
+		// IK目标
 		internal BoneData target;
 		internal int bendDirection = 1;
 		internal bool compress, stretch, uniform;

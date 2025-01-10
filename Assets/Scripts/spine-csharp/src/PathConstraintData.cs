@@ -31,7 +31,10 @@ using System;
 
 namespace Spine {
 	public class PathConstraintData : ConstraintData {
+		// 受到路径约束的骨骼列表
 		internal ExposedList<BoneData> bones = new ExposedList<BoneData>();
+		// 路径约束目标插槽
+		// 路径约束会将骨骼与路径绑定，而路径是通过插槽来定义的
 		internal SlotData target;
 		internal PositionMode positionMode;
 		internal SpacingMode spacingMode;
@@ -47,8 +50,11 @@ namespace Spine {
 		public PositionMode PositionMode { get { return positionMode; } set { positionMode = value; } }
 		public SpacingMode SpacingMode { get { return spacingMode; } set { spacingMode = value; } }
 		public RotateMode RotateMode { get { return rotateMode; } set { rotateMode = value; } }
+		// 路径约束的旋转偏移量，以角度为单位
 		public float OffsetRotation { get { return offsetRotation; } set { offsetRotation = value; } }
+		// 骨骼在路径上的位置，可以是固定值或百分比，取决于 positionMode。
 		public float Position { get { return position; } set { position = value; } }
+		// 骨骼之间的间距，可以是固定值或百分比，取决于 spacingMode。
 		public float Spacing { get { return spacing; } set { spacing = value; } }
 		/// <summary> A percentage (0-1) that controls the mix between the constrained and unconstrained rotation.</summary>
 		public float RotateMix { get { return mixRotate; } set { mixRotate = value; } }
@@ -59,14 +65,20 @@ namespace Spine {
 	}
 
 	public enum PositionMode {
-		Fixed, Percent
+		Fixed, // 固定值 
+		Percent // 百分比
 	}
 
 	public enum SpacingMode {
-		Length, Fixed, Percent, Proportional
+		Length, // 根据路径的长度来计算间距 
+		Fixed, // 使用固定间距
+		Percent, // 使用路劲长度的百分比
+		Proportional // 按比例分布间距
 	}
 
 	public enum RotateMode {
-		Tangent, Chain, ChainScale
+		Tangent, // 骨骼的旋转方向与路径的切线方向一致 
+		Chain, // 骨骼按链式旋转
+		ChainScale // 链式旋转，同时根据路径长度缩放骨骼
 	}
 }
